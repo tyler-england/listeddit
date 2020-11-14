@@ -1,0 +1,9 @@
+venv/
+
+*.pyc
+
+#IDE (PyCharm)
+.idea/
+
+# OS (Mac OS)
+.DS_Store
