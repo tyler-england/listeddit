@@ -1,4 +1,4 @@
-from reddIMDB import app
+from listeddit import app
 
 if __name__ == '__main__':
     app.run()
