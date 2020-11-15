@@ -1,5 +1,5 @@
-from reddIMDB.APIs import from_reddit
-from reddIMDB.data import data_parse
+from listeddit.APIs import from_reddit
+from listeddit.data import data_parse
 
 
 def run():
