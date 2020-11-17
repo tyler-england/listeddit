@@ -1,5 +1,8 @@
 # imports
 
+def get_type(comment):
+    return
+
 def get_songs(comments_raw):
     songs = []
     # TODO: figure out which part of each element is a song -> create array
