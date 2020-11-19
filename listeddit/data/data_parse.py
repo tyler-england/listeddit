@@ -1,7 +1,22 @@
 # imports
 
 def get_type(comment):
-    return
+    bodytext = comment.body.lower()
+    songs = ["song", "music", "audio"]
+    movies = ["movie", "film"]
+    shows = ["show", "TV"]
+    games = ["game"]
+    type = "song"  # default value
+    if any(keyword in bodytext for keyword in songs):
+        type = "song"
+    elif any(keyword in bodytext for keyword in movies):
+        type = "movie"
+    elif any(keyword in bodytext for keyword in shows):
+        type = "show"
+    elif any(keyword in bodytext for keyword in games):
+        type = "game"
+    return type
+
 
 def get_songs(comments_raw):
     songs = []
