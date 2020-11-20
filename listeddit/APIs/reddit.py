@@ -9,4 +9,5 @@ def get_comments(sub, lvl1=True):  # sub=submission
 def make_comment(c, url_link):
     response = "Here's the link! " + url_link
     c.reply(response)
+    print("replied!")
     return

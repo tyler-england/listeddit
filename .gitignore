@@ -1,6 +1,7 @@
 venv/
 
 *.pyc
+.cache*
 
 #IDE (PyCharm)
 .idea/
