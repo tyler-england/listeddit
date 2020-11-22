@@ -49,19 +49,27 @@ def bot_called(ctxt):
 def run(c):  # c is the comment which called the script
     item_type = data_parse.get_type(c)  # song, movie, etc.
     sub = c.submission
-    list_name=data_parse.get_name(sub)
+    list_name = data_parse.get_name(sub)
     comments_raw = reddit.get_comments(sub, True)
-    if item_type is "movie":
+    item_list = []
+    if item_type == "song":
+        item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
+    elif item_type == "movie":
         item_list = data_parse.get_movies(comments_raw)  # handle comments -> movies
-    elif item_type is "show":
+    elif item_type == "show":
         item_list = data_parse.get_shows(comments_raw)  # handle comments -> shows
-    elif item_type is "game":  # TODO: Figure out if APIs exist for these
+    elif item_type == "game":  # TODO: Figure out if APIs exist for these
         item_list = data_parse.get_games(comments_raw)  # handle comments -> games
     else:
-        item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
-    url_link = apis.create_list(list_name,item_type, item_list) # make list/playlist
+        reddit.make_comment(c, False, item_type)  # item type not supported
+        return
+    if item_list == []:
+        reddit.make_comment(c, True, item_type)  # failed to find items
+        return
+    url_link = apis.create_list(list_name, item_type, item_list)  # make list/playlist
     print(url_link)
-    reddit.make_comment(c, url_link)
+    reddit.make_comment(c, True, url_link)  # post link to list
+    return
 
 
 ver = findver()  # program revision / version
@@ -71,22 +79,17 @@ comment_doc = findfile("comment", "txt")
 with open(comment_doc, "r+") as cmt_list:
     done_comments = [line.rstrip() for line in cmt_list]
     cmt_list.truncate(0)
-bran=False
-#try:
-for comment in r.subreddit('test').stream.comments():  # r.subreddit('all').stream.comments():
-    if comment.id not in done_comments:
-        if not bran:
-            run(comment)
-            bran=True
-        check = comment.body
-        print(check)
-        if bot_called(check):
-            run(comment)
-            done_comments.append(comment.id)
-            with open(comment_doc, "a+") as cmt_list:
-                print("id: " + str(comment.id))
-                cmt_list.write(str(comment.id) + "\n")
-# except Exception as e:
-#     print("error!")
-#     print(e)
-#     quit()  # TODO: restart bot?
+bran = False
+try:
+    for comment in r.subreddit('test').stream.comments():  # r.subreddit('all').stream.comments():
+        if comment.id not in done_comments:
+            if bot_called(comment.body):
+                print("called: " + comment.body)
+                run(comment)
+                done_comments.append(comment.id)
+                with open(comment_doc, "a+") as cmt_list:
+                    print("id: " + str(comment.id))
+                    cmt_list.write(str(comment.id) + "\n")
+except Exception as e:
+    print("error:" + str(e))
+    quit()  # TODO: restart bot?
