@@ -17,8 +17,8 @@ def get_type(comment):
     elif any(keyword in bodytext for keyword in games):
         type = "game"
     else:
-        pos1 = bodytext.find("(")
-        pos2 = bodytext.find(")")
+        pos1 = bodytext.find("[")
+        pos2 = bodytext.find("]")
         if pos2 > pos1 > -1:
             type = bodytext[pos1 + 1:pos2]
     if type == "":  # try to figure out from post title

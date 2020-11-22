@@ -79,9 +79,8 @@ comment_doc = findfile("comment", "txt")
 with open(comment_doc, "r+") as cmt_list:
     done_comments = [line.rstrip() for line in cmt_list]
     cmt_list.truncate(0)
-bran = False
 try:
-    for comment in r.subreddit('test').stream.comments():  # r.subreddit('all').stream.comments():
+    for comment in r.subreddit('all').stream.comments():  # r.subreddit('all').stream.comments():
         if comment.id not in done_comments:
             if bot_called(comment.body):
                 print("called: " + comment.body)
