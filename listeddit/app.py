@@ -1,32 +1,12 @@
 from listeddit.APIs import reddit, apis
 from listeddit.data import data_parse
-import praw, os
-
-
-def findfile(name, ext):
-    name = name.lower()
-    if ext[:1] is not ".":
-        ext = "." + ext
-    ext = ext.lower()
-    docpath = os.path.dirname(os.getcwd())  # file parent dir
-    for file in os.listdir(docpath):
-        if file.endswith(ext):
-            if file.find(name) >= 0:
-                if docpath.find("/") > -1:
-                    docpath = docpath + "/" + file
-                else:
-                    docpath = docpath + "\\" + file
-                break
-    if docpath.lower().find(name) >= 0 and docpath.lower().endswith(ext):
-        return docpath.lower()
-    else:
-        return
+import praw
 
 
 def findver():
     ver = "???"
     try:
-        docpath = findfile("readme", ".md")
+        docpath = apis.findfile("readme", ".md")
         if docpath.endswith(".md"):
             with open(docpath) as doc:  # go to README
                 linelist = [line.rstrip() for line in doc]
@@ -48,9 +28,13 @@ def bot_called(ctxt):
 
 def run(c):  # c is the comment which called the script
     item_type = data_parse.get_type(c)  # song, movie, etc.
+    lvl1 = True
+    if c.body.lower.find("all") > -1:
+        lvl1 = False
     sub = c.submission
+    subreddit = c.subreddit
     list_name = data_parse.get_name(sub)
-    comments_raw = reddit.get_comments(sub, True)
+    comments_raw = reddit.get_comments(sub, lvl1)
     item_list = []
     if item_type == "song":
         item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
@@ -63,22 +47,30 @@ def run(c):  # c is the comment which called the script
     else:
         reddit.make_comment(c, False, item_type)  # item type not supported
         return
-    if item_list == []:
+    if not item_list:
         reddit.make_comment(c, True, item_type)  # failed to find items
         return
     url_link = apis.create_list(list_name, item_type, item_list)  # make list/playlist
-    print(url_link)
-    reddit.make_comment(c, True, url_link)  # post link to list
+    if subreddit in no_bot_subs:  # bots aren't allowed to comment
+        reddit.send_message(c, True, url_link, r)
+    else:
+        try:
+            reddit.make_comment(c, True, url_link)  # post link to list
+        except Exception as e:
+            if not url_link == "":  # link was okay --> try different method
+                if str(e)[:9] == "RATELIMIT":  # must wait before submitting another comment
+                    reddit.send_message(c, True, url_link, r)
     return
 
 
 ver = findver()  # program revision / version
 ua = "listeddit v: " + ver + " by /u/StPeteTy, github.com/tyler-england/listeddit/"
 r = praw.Reddit("listeddit", user_agent=ua)  # TODO: Trap/prompt auth error
-comment_doc = findfile("comment", "txt")
+comment_doc = apis.findfile("comment", "txt")
 with open(comment_doc, "r+") as cmt_list:
     done_comments = [line.rstrip() for line in cmt_list]
     cmt_list.truncate(0)
+no_bot_subs = ["askreddit"]
 try:
     for comment in r.subreddit('all').stream.comments():  # r.subreddit('all').stream.comments():
         if comment.id not in done_comments:
@@ -87,8 +79,6 @@ try:
                 run(comment)
                 done_comments.append(comment.id)
                 with open(comment_doc, "a+") as cmt_list:
-                    print("id: " + str(comment.id))
                     cmt_list.write(str(comment.id) + "\n")
 except Exception as e:
-    print("error:" + str(e))
     quit()  # TODO: restart bot?

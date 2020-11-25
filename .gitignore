@@ -8,3 +8,6 @@ venv/
 
 # OS (Mac OS)
 .DS_Store
+
+# Client IDs/Secrets
+*login*.txt

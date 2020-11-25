@@ -12,25 +12,23 @@ def get_playlist_id(sp, un, list_name):
     return playlist_id
 
 
-def create_list(list_name, song_info):
-    sp_cid = "4d36c529bdd045d285debd8ed83a701c"  # client ID
-    sp_csec = "a260a7412b3542aba3e0f2bcfe8a9bc1"  # client secret
+def create_list(cid, csec, list_name, song_info):
+    sp_cid = cid
+    sp_csec = csec
     sp_uri = "http://localhost:8080"
     sp_scope = "playlist-modify-private,playlist-modify-public"
     # sp_cache = '.spotipyoauthcache'
     sp_un = "374oo3vji0f3aexvb4l423n63"
 
     auth_mgr = spotipy.SpotifyOAuth(sp_cid, sp_csec, sp_uri, None, sp_scope, None, sp_un)
-    # sp = spotipy.oauth2.SpotifyOAuth(sp_cid, sp_csec, sp_uri, None, sp_scope, sp_cache, sp_un)
     sp = spotipy.Spotify(auth_manager=auth_mgr)
     playlist_name = list_name
-    playlist_description = 'description for test playlist'
+    playlist_description = "Songs populated from the comments on " + list_name
     track_ids = []
     list_url = ""
     for i in range(len(song_info)):
         if len(song_info[i]) > 0:
             try:
-                print(song_info[i])
                 results = sp.search(q=song_info[i], limit=5, type="track")
                 if results["tracks"]["total"] > 0:
                     max_match = 0

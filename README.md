@@ -1,4 +1,4 @@
-# listeddit
+# listeddit (Reddit u/ListPlease)
 
 Version 1.0
 
