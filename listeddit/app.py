@@ -29,7 +29,7 @@ def bot_called(ctxt):
 def run(c):  # c is the comment which called the script
     item_type = data_parse.get_type(c)  # song, movie, etc.
     lvl1 = True
-    if c.body.lower.find("all") > -1:
+    if c.body.lower().find("all") > -1:
         lvl1 = False
     sub = c.submission
     subreddit = c.subreddit
@@ -50,7 +50,7 @@ def run(c):  # c is the comment which called the script
     if not item_list:
         reddit.make_comment(c, True, item_type)  # failed to find items
         return
-    url_link = apis.create_list(list_name, item_type, item_list)  # make list/playlist
+    url_link = apis.create_list(list_name, sub.id,item_type, item_list)  # make list/playlist
     if subreddit in no_bot_subs:  # bots aren't allowed to comment
         reddit.send_message(c, True, url_link, r)
     else:

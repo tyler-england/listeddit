@@ -12,7 +12,7 @@ def get_playlist_id(sp, un, list_name):
     return playlist_id
 
 
-def create_list(cid, csec, list_name, song_info):
+def create_list(cid, csec, list_name, sub_id, song_info):
     sp_cid = cid
     sp_csec = csec
     sp_uri = "http://localhost:8080"
@@ -23,7 +23,7 @@ def create_list(cid, csec, list_name, song_info):
     auth_mgr = spotipy.SpotifyOAuth(sp_cid, sp_csec, sp_uri, None, sp_scope, None, sp_un)
     sp = spotipy.Spotify(auth_manager=auth_mgr)
     playlist_name = list_name
-    playlist_description = "Songs populated from the comments on " + list_name
+    playlist_description = "Songs populated from the comments on Reddit thread " + sub_id
     track_ids = []
     list_url = ""
     for i in range(len(song_info)):

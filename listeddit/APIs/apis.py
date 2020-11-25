@@ -37,7 +37,7 @@ def get_id_sec(service):
     return cid, csec
 
 
-def create_list(list_name, item_type, item_list):
+def create_list(list_name, sub_id, item_type, item_list):
     if item_type is "movie":
         from listeddit.APIs import imdb
         list_link = imdb.create_list(list_name, item_list)
@@ -53,5 +53,5 @@ def create_list(list_name, item_type, item_list):
     else:
         from listeddit.APIs import spotify
         cid, csec = get_id_sec("spotify")
-        list_link = spotify.create_list(cid, csec, list_name, item_list)
+        list_link = spotify.create_list(cid, csec, list_name, sub_id, item_list)
     return list_link
