@@ -30,7 +30,6 @@ def get_response(supported, url_link):
 
 def make_comment(c, supported, url_link):
     response = get_response(supported, url_link)
-    response = response + "\n(I am a bot)"
     c.reply(response)
     print("replied!")
     return
