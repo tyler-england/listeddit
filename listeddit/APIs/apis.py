@@ -3,7 +3,7 @@ import os
 
 def findfile(name, ext):
     name = name.lower()
-    if ext[:1] is not ".":
+    if ext[:1] != ".":
         ext = "." + ext
     ext = ext.lower()
     docpath = os.path.dirname(os.getcwd())  # file parent dir
@@ -38,20 +38,20 @@ def get_id_sec(service):
 
 
 def create_list(list_name, sub_id, item_type, item_list):
-    if item_type is "movie":
-        from listeddit.APIs import imdb
+    if item_type == "movie":
+        from APIs import imdb
         list_link = imdb.create_list(list_name, item_list)
-    elif item_type is "show":
-        from listeddit.APIs import netflix
-        from listeddit.APIs import hulu
-        from listeddit.APIs import disney
-    elif item_type is "game":
-        from listeddit.APIs import playstation
-        from listeddit.APIs import xbox
-        from listeddit.APIs import nintendo
-        from listeddit.APIs import pc
+    elif item_type == "show":
+        from APIs import netflix
+        from APIs import hulu
+        from APIs import disney
+    elif item_type == "game":
+        from APIs import playstation
+        from APIs import xbox
+        from APIs import nintendo
+        from APIs import pc
     else:
-        from listeddit.APIs import spotify
+        from APIs import spotify
         cid, csec = get_id_sec("spotify")
         list_link = spotify.create_list(cid, csec, list_name, sub_id, item_list)
     return list_link

@@ -1,5 +1,6 @@
-from listeddit.APIs import reddit, apis
-from listeddit.data import data_parse
+from APIs import reddit, apis
+from data import data_parse
+from datetime import datetime
 import praw
 
 
@@ -36,6 +37,7 @@ def run(c):  # c is the comment which called the script
     list_name = data_parse.get_name(sub)
     comments_raw = reddit.get_comments(sub, lvl1)
     item_list = []
+    #print("1: "+item_type)
     if item_type == "song":
         item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
     elif item_type == "movie":
@@ -50,16 +52,17 @@ def run(c):  # c is the comment which called the script
     if not item_list:
         reddit.make_comment(c, True, item_type)  # failed to find items
         return
-    url_link = apis.create_list(list_name, sub.id,item_type, item_list)  # make list/playlist
-    if subreddit in no_bot_subs:  # bots aren't allowed to comment
-        reddit.send_message(c, True, url_link, r)
-    else:
-        try:
-            reddit.make_comment(c, True, url_link)  # post link to list
-        except Exception as e:
-            if not url_link == "":  # link was okay --> try different method
+    url_link = apis.create_list(list_name, sub.id, item_type, item_list)  # make list/playlist
+    if not url_link=="":
+        if subreddit in no_bot_subs:  # bots aren't allowed to comment
+            reddit.send_message(c, True, url_link, r, False)
+        else:
+            try:
+                reddit.send_message(c, True, url_link, r, True)
+                reddit.make_comment(c, True, url_link)  # post link to list
+            except Exception as e:
                 if str(e)[:9] == "RATELIMIT":  # must wait before submitting another comment
-                    reddit.send_message(c, True, url_link, r)
+                    pass#reddit.send_message(c, True, url_link, r, True)
     return
 
 
@@ -70,15 +73,17 @@ comment_doc = apis.findfile("comment", "txt")
 with open(comment_doc, "r+") as cmt_list:
     done_comments = [line.rstrip() for line in cmt_list]
     cmt_list.truncate(0)
-no_bot_subs = ["askreddit"]
-try:
-    for comment in r.subreddit('all').stream.comments():  # r.subreddit('all').stream.comments():
-        if comment.id not in done_comments:
-            if bot_called(comment.body):
-                print("called: " + comment.body)
-                run(comment)
-                done_comments.append(comment.id)
-                with open(comment_doc, "a+") as cmt_list:
-                    cmt_list.write(str(comment.id) + "\n")
-except Exception as e:
-    quit()  # TODO: restart bot?
+no_bot_subs = ["askreddit","learnjapanese", "february2021babybumps", "poppunkers"]
+#try:
+for comment in r.subreddit('all').stream.comments():
+    if comment.id not in done_comments:
+        if bot_called(comment.body):
+            time=datetime.now().strftime("%-d %b %Y, %H:%M:%S")
+            print("called: " + time + " -- " + comment.body + " - " + comment.author.name + ", " + comment.permalink)
+            run(comment)
+            done_comments.append(comment.id)
+            with open(comment_doc, "a+") as cmt_list:
+                cmt_list.write(str(comment.id) + "\n")
+# except Exception as e:
+#     print("ex: " + str(e))
+#     quit()  # TODO: restart bot?

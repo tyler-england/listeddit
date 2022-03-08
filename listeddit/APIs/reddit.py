@@ -11,7 +11,11 @@ def get_response(supported, url_link):
     if url_link.lower().find("/") > -1:
         if url_link.lower()[:7] != "http://":
             url_link = "http://" + url_link
-        response = "[Here's the link!](" + url_link + ")"
+        if url_link.lower().find("spotify") > -1:
+            response = "As requested, I've created a playlist of the songs in this comment thread." \
+                       "\n\n[Here's the link!](" + url_link + ")"
+        else:
+            response = "[Here's the link!](" + url_link + ")"
     elif not supported:
         if url_link == "that":
             response = "Sorry, " + url_link + " listing mode is unsupported :("
@@ -24,7 +28,7 @@ def get_response(supported, url_link):
             response = "Sorry, " + url_link + "-listing mode is still in development :("
         else:
             response = "Sorry, I couldn't find any " + url_link + "s in this post :("
-    response = response + "\n\nI am a bot"
+    response = response + "\n\nNote: I am a bot"
     return response
 
 
@@ -35,7 +39,7 @@ def make_comment(c, supported, url_link):
     return
 
 
-def send_message(c, supported, url_link, r):  # requires the reddit instance for messaging
+def send_message(c, supported, url_link, r, making_comment):  # requires the reddit instance for messaging
     sub = c.submission
     sub_url = sub.url
     link = get_response(supported, url_link)
@@ -47,9 +51,12 @@ def send_message(c, supported, url_link, r):  # requires the reddit instance for
     response = response + sub_url + "\n\n"
     response = response + "Please see the output below:\n\n\n"
     response = response + link + "\n\n\n"
-    response = response + "Please note: I am a bot. If you received this message, it's because I was prevented " \
-                          "from commenting.\n(maybe because there have been too many requests, or the subreddit " \
-                          "simply doesn't allow bots)"
+    if making_comment:
+        response = response + "Note: I am a bot. I replied to your comment with this same link, but I'm " \
+                              "messaging you as well because some subreddits simply don't allow bot activity."
+    else:
+        response = response + "Note: I am a bot. You're receiving this message because the subreddit where I " \
+                              "was called doesn't allow bots to comment."
     user = c.author
     r.redditor(user.name).message("Your ListPlease results", response)
     print("messaged!")

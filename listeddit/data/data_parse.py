@@ -8,7 +8,7 @@ def get_type(comment):
     shows = ["show", "TV"]
     games = ["game"]
     type = "that"  # default value
-    if any(keyword in bodytext for keyword in songs):
+    if any(keyword in bodytext for keyword in songs) or bodytext.lower()=="listplease!":
         type = "song"
     elif any(keyword in bodytext for keyword in movies):
         type = "movie"
@@ -114,6 +114,7 @@ def get_songs(comments_raw):
     for comment in comments_raw:
         if not hasattr(comment, "body"):  # "More Comments" has no body
             continue
+        #print("2: " + comment.body[:25])
         txt = comment.body
         for line in txt.splitlines():
             songfound = False
@@ -172,7 +173,9 @@ def get_songs(comments_raw):
                     songs.append(line[:pos1].strip())
                 else:
                     songs.append(line.strip())  # TODO: parse
+    #print("3: " + str(len(songs)))
     songs = list(dict.fromkeys(songs))  # remove duplicates
+    #print("4: " + str(len(songs)))
     return songs
 
 
