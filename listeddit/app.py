@@ -27,7 +27,8 @@ def bot_called(ctxt):
     return response
 
 
-def run(c):  # c is the comment which called the script
+def run(c, r):  # c is the comment which called the script
+    no_bot_subs = ["askreddit", "learnjapanese", "february2021babybumps", "poppunkers"]
     item_type = data_parse.get_type(c)  # song, movie, etc.
     lvl1 = True
     if c.body.lower().find("all") > -1:
@@ -37,7 +38,7 @@ def run(c):  # c is the comment which called the script
     list_name = data_parse.get_name(sub)
     comments_raw = reddit.get_comments(sub, lvl1)
     item_list = []
-    #print("1: "+item_type)
+    # print("1: "+item_type)
     if item_type == "song":
         item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
     elif item_type == "movie":
@@ -53,37 +54,37 @@ def run(c):  # c is the comment which called the script
         reddit.make_comment(c, True, item_type)  # failed to find items
         return
     url_link = apis.create_list(list_name, sub.id, item_type, item_list)  # make list/playlist
-    if not url_link=="":
+    if not url_link == "":
         if subreddit in no_bot_subs:  # bots aren't allowed to comment
             reddit.send_message(c, True, url_link, r, False)
         else:
-            try:
-                reddit.send_message(c, True, url_link, r, True)
-                reddit.make_comment(c, True, url_link)  # post link to list
-            except Exception as e:
-                if str(e)[:9] == "RATELIMIT":  # must wait before submitting another comment
-                    pass#reddit.send_message(c, True, url_link, r, True)
+            reddit.send_message(c, True, url_link, r, True)
+            reddit.make_comment(c, True, url_link)  # post link to list
     return
 
 
-ver = findver()  # program revision / version
-ua = "listeddit v: " + ver + " by /u/StPeteTy, github.com/tyler-england/listeddit/"
-r = praw.Reddit("listeddit", user_agent=ua)  # TODO: Trap/prompt auth error
-comment_doc = apis.findfile("comment", "txt")
-with open(comment_doc, "r+") as cmt_list:
-    done_comments = [line.rstrip() for line in cmt_list]
-    cmt_list.truncate(0)
-no_bot_subs = ["askreddit","learnjapanese", "february2021babybumps", "poppunkers"]
-#try:
-for comment in r.subreddit('all').stream.comments():
-    if comment.id not in done_comments:
-        if bot_called(comment.body):
-            time=datetime.now().strftime("%-d %b %Y, %H:%M:%S")
-            print("called: " + time + " -- " + comment.body + " - " + comment.author.name + ", " + comment.permalink)
-            run(comment)
-            done_comments.append(comment.id)
-            with open(comment_doc, "a+") as cmt_list:
-                cmt_list.write(str(comment.id) + "\n")
-# except Exception as e:
-#     print("ex: " + str(e))
-#     quit()  # TODO: restart bot?
+def mainfunc():
+    try:
+        x = 5
+        ver = findver()  # program revision / version
+        ua = "listeddit v: " + ver + " by /u/StPeteTy, github.com/tyler-england/listeddit/"
+        r = praw.Reddit("listeddit", user_agent=ua)  # TODO: Trap/prompt auth error
+        comment_doc = apis.findfile("comment", "txt")
+        with open(comment_doc, "r+") as cmt_list:
+            done_comments = [line.rstrip() for line in cmt_list]
+            cmt_list.truncate(0)
+
+        for comment in r.subreddit('all').stream.comments():
+            if comment.id not in done_comments:
+                if bot_called(comment.body):
+                    time = datetime.now().strftime("%-d %b %Y, %H:%M:%S")
+                    print(
+                        "called: " + time + " -- " + comment.body + " - " + comment.author.name + ", " + comment.permalink)
+                    run(comment, r)
+                    done_comments.append(comment.id)
+                    with open(comment_doc, "a+") as cmt_list:
+                        cmt_list.write(str(comment.id) + "\n")
+    except Exception as e:
+        print(e)
+        x = 0
+    return x
