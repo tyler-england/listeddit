@@ -13,5 +13,4 @@ if __name__ == '__main__':
             y = 1
             x = app.mainfunc()
         except:
-            print("x: " + str(x))
             continue

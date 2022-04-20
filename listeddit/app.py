@@ -28,7 +28,7 @@ def bot_called(ctxt):
 
 
 def run(c, r):  # c is the comment which called the script
-    no_bot_subs = ["askreddit", "learnjapanese", "february2021babybumps", "poppunkers"]
+    no_prob_subs = ["music", "stonerrock", "techno"]
     item_type = data_parse.get_type(c)  # song, movie, etc.
     lvl1 = True
     if c.body.lower().find("all") > -1:
@@ -37,8 +37,7 @@ def run(c, r):  # c is the comment which called the script
     subreddit = c.subreddit
     list_name = data_parse.get_name(sub)
     comments_raw = reddit.get_comments(sub, lvl1)
-    item_list = []
-    # print("1: "+item_type)
+
     if item_type == "song":
         item_list = data_parse.get_songs(comments_raw)  # handle comments (songs is default mode)
     elif item_type == "movie":
@@ -55,10 +54,10 @@ def run(c, r):  # c is the comment which called the script
         return
     url_link = apis.create_list(list_name, sub.id, item_type, item_list)  # make list/playlist
     if not url_link == "":
-        if subreddit in no_bot_subs:  # bots aren't allowed to comment
-            reddit.send_message(c, True, url_link, r, False)
+        if subreddit in no_prob_subs:  # bots can comment -> no msg necessary
+            reddit.make_comment(c, True, url_link)
         else:
-            reddit.send_message(c, True, url_link, r, True)
+            reddit.send_message(c, True, url_link, r)
             reddit.make_comment(c, True, url_link)  # post link to list
     return
 
@@ -85,6 +84,6 @@ def mainfunc():
                     with open(comment_doc, "a+") as cmt_list:
                         cmt_list.write(str(comment.id) + "\n")
     except Exception as e:
-        print(e)
+        print("\n" + str(e))
         x = 0
     return x

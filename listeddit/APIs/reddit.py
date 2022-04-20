@@ -39,7 +39,7 @@ def make_comment(c, supported, url_link):
     return
 
 
-def send_message(c, supported, url_link, r, making_comment):  # requires the reddit instance for messaging
+def send_message(c, supported, url_link, r):  # requires the reddit instance for messaging
     sub = c.submission
     sub_url = sub.url
     link = get_response(supported, url_link)
@@ -51,12 +51,8 @@ def send_message(c, supported, url_link, r, making_comment):  # requires the red
     response = response + sub_url + "\n\n"
     response = response + "Please see the output below:\n\n\n"
     response = response + link + "\n\n\n"
-    if making_comment:
-        response = response + "Note: I am a bot. I replied to your comment with this same link, but I'm " \
-                              "messaging you as well because some subreddits simply don't allow bot activity."
-    else:
-        response = response + "Note: I am a bot. You're receiving this message because the subreddit where I " \
-                              "was called doesn't allow bots to comment."
+    response = response + "Note: I am a bot. I replied to your comment with this same link, but I'm " \
+                          "messaging you as well because some subreddits simply don't allow bot activity."
     user = c.author
     r.redditor(user.name).message("Your ListPlease results", response)
     print("messaged!")
