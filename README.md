@@ -1,4 +1,4 @@
-# listeddit (Reddit u/ListPlease)
+# listeddit (Reddit [u/ListPlease](https://www.reddit.com/user/listplease))
 
 Version 1.0
 
